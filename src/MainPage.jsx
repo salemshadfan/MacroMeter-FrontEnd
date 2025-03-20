@@ -8,6 +8,7 @@ import bg3 from "./assets/bg3.jpg";
 import bg4 from "./assets/bg4.jpg";
 import { addUserHistory } from "./controllers/historyController";
 import { submitFeedback } from "./controllers/feedbackController";
+import { validateToken } from "./controllers/authController";
 import CONFIG from "./config";
 
 const MainView = () => {
@@ -21,7 +22,6 @@ const MainView = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [mealStack, setMealStack] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
   const backgrounds = [bg1, bg2, bg3, bg4];
 
@@ -35,6 +35,15 @@ const MainView = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+        const isValid = await validateToken();
+        if (!isValid) navigate("/");
+    };
+
+    checkAuth();
+}, [navigate]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -54,6 +63,7 @@ const MainView = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
     navigate("/");
   };
 
@@ -73,7 +83,7 @@ const MainView = () => {
     formData.append("image", selectedFile);
   
     try {
-      const res = await axios.post(`${CONFIG.API_BASE_URL}/analyze-image`, formData, {
+      const res = await axios.post(`${CONFIG.API_BASE_URL}/api/analyze-image`, formData, {
         headers: {
           "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",

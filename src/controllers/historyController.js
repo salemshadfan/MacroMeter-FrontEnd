@@ -30,7 +30,7 @@ export const addUserHistory = async (history_entry) => {
             return;
         }
 
-        const response = await axios.post(`${CONFIG.API_BASE_URL}:5000/history`, {
+        const response = await axios.post(`${CONFIG.API_BASE_URL}/history`, {
             history_entry: history_entry,
         }, {
             headers: {
@@ -52,7 +52,7 @@ export const resetUserHistory = async () => {
             console.log('No token found in sessionStorage. Please log in.');
         }
 
-        const response = await axios.get(`${CONFIG.API_BASE_URL}:5000/wipe`, {
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/wipe`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'

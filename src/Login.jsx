@@ -24,7 +24,6 @@ const LoginPage = () => {
         setError(result.error);
       } else {
         console.log("Login successful:", result.user);
-        sessionStorage.setItem("token", result.token);
         navigate("/MainPage");
       }
     } catch (err) {

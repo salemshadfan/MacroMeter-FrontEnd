@@ -1,53 +1,79 @@
-import axios from 'axios';
+import axios from "axios";
 import CONFIG from "../config";
 
 
+const saveToken = (token) => {
+    sessionStorage.setItem("token", token);
+};
 
-// TODO: Make post request to backend for login
+export const getToken = () => {
+    return sessionStorage.getItem("token");
+};
+
+
+export const logoutUser = () => {
+    sessionStorage.removeItem("token");
+    window.location.href = "/login"; 
+};
+
+
 export const authenticateUser = async (email, password) => {
     try {
         const response = await axios.post(`${CONFIG.API_BASE_URL}/login`, {
-            email: email,
-            password: password,
+            email,
+            password,
         });
+
+        if (response.data.token) {
+            saveToken(response.data.token); 
+        }
+
         return response.data;
     } catch (error) {
-        if (!error.response) {
-            return {
-                error: 'Network error or server is unreachable',
-            };
-        }
-
-        if (error.response.status === 401) {
-            return {
-                error: error.response.data.error || 'Invalid email or password',
-            };
-        }
-
-        return {
-            error: error.response.data.error || 'An unexpected error occurred.',
-        };
+        return handleError(error, "Invalid email or password");
     }
 };
 
-// TODO: Make post request to backend for register
+
 export const signupUser = async (username, email, password) => {
     try {
         const response = await axios.post(`${CONFIG.API_BASE_URL}/signup`, {
-            username: username,
-            email: email,
-            password: password,
+            username,
+            email,
+            password,
         });
+
         return response.data;
     } catch (error) {
-        if (!error.response) {
-            return {
-                error: 'Network error or server is unreachable',
-            };
-        }
-
-        return {
-            error: error.response.data.error || 'An unexpected error occurred.',
-        }
+        return handleError(error, "Registration failed");
     }
-}
+};
+
+
+export const validateToken = async () => {
+    const token = getToken();
+    if (!token) return false;
+
+    try {
+        const response = await axios.get(`${CONFIG.API_BASE_URL}/api/auth-check`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error("JWT validation failed:", error);
+        logoutUser(); 
+        return false;
+    }
+};
+
+
+const handleError = (error, defaultMessage) => {
+    if (!error.response) {
+        return { error: "Network error or server is unreachable" };
+    }
+
+    return {
+        error: error.response.data.error || defaultMessage,
+    };
+};
