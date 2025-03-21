@@ -1,6 +1,6 @@
 // TODO: Grab user's macronutrient history
 import axios from "axios";
-import CONFIG from "../config";
+import CONFIG from "../config.js";
 export const getUserHistory = async () => {
     try {
         const token = sessionStorage.getItem('token');
