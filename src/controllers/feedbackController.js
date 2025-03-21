@@ -1,5 +1,5 @@
 import axios from "axios";
-import CONFIG from "../config";
+import CONFIG from "../config.js";
 
 export const submitFeedback = async (stars, feedback) => {
     try {
